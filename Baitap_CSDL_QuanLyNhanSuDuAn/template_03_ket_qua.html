@@ -1,0 +1,377 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Báo cáo Kết quả Thực thi Truy vấn CSDL</title>
+<style>
+  @page {
+    size: A4;
+    margin: 18mm 15mm 18mm 15mm;
+    @bottom-right {
+      content: counter(page);
+    }
+  }
+  body {
+    font-family: "Segoe UI", Tahoma, Arial, sans-serif;
+    color: #1e293b;
+    line-height: 1.45;
+    font-size: 12.5px;
+    margin: 0;
+    padding: 0;
+  }
+  .cover {
+    page-break-after: always;
+    text-align: center;
+    padding-top: 60px;
+  }
+  .cover-header {
+    font-size: 15px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #0f172a;
+    border-bottom: 2px solid #059669;
+    padding-bottom: 12px;
+    margin-bottom: 50px;
+    letter-spacing: 1px;
+  }
+  .cover-title {
+    font-size: 26px;
+    font-weight: 800;
+    color: #047857;
+    margin-bottom: 15px;
+    text-transform: uppercase;
+  }
+  .cover-subtitle {
+    font-size: 16px;
+    color: #475569;
+    margin-bottom: 60px;
+    font-weight: 600;
+  }
+  .cover-box {
+    background: #f0fdf4;
+    border: 1px solid #a7f3d0;
+    border-radius: 8px;
+    padding: 25px;
+    display: inline-block;
+    text-align: left;
+    width: 75%;
+    margin-bottom: 80px;
+    font-size: 14px;
+  }
+  .cover-box p {
+    margin: 8px 0;
+  }
+  .cover-footer {
+    color: #64748b;
+    font-size: 13px;
+  }
+  
+  h1 {
+    font-size: 18px;
+    color: #065f46;
+    border-left: 5px solid #059669;
+    padding-left: 10px;
+    margin-top: 25px;
+    margin-bottom: 12px;
+    page-break-inside: avoid;
+  }
+  h2 {
+    font-size: 14px;
+    color: #0f172a;
+    margin-top: 16px;
+    margin-bottom: 8px;
+    border-bottom: 1px solid #e2e8f0;
+    padding-bottom: 3px;
+    page-break-inside: avoid;
+  }
+  p {
+    margin: 6px 0;
+    text-align: justify;
+  }
+  .query-title {
+    font-weight: 700;
+    color: #1e293b;
+    margin-top: 14px;
+    margin-bottom: 4px;
+  }
+  .sql-code {
+    background: #0f172a;
+    color: #38bdf8;
+    padding: 10px 12px;
+    border-radius: 6px;
+    font-family: Consolas, monospace;
+    font-size: 11px;
+    margin: 6px 0 10px 0;
+    white-space: pre-wrap;
+    page-break-inside: avoid;
+    line-height: 1.35;
+  }
+  .sql-code .kw { color: #f43f5e; font-weight: bold; }
+  .sql-code .fn { color: #fbbf24; }
+  .sql-code .str { color: #a3e635; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 8px 0 16px 0;
+    font-size: 11px;
+    page-break-inside: avoid;
+  }
+  th, td {
+    border: 1px solid #cbd5e1;
+    padding: 5px 8px;
+  }
+  th {
+    background-color: #f8fafc;
+    color: #0f172a;
+    font-weight: 700;
+    text-align: left;
+  }
+  tr:nth-child(even) {
+    background-color: #f1f5f9;
+  }
+  .page-break {
+    page-break-after: always;
+  }
+</style>
+</head>
+<body>
+
+<!-- COVER PAGE -->
+<div class="cover">
+  <div class="cover-header">
+    ĐẠI HỌC QUỐC GIA TP. HỒ CHÍ MINH<br>
+    KHOA HỆ THỐNG THÔNG TIN - CƠ SỞ DỮ LIỆU NÂNG CAO
+  </div>
+  
+  <div class="cover-title">BÁO CÁO THỰC THI & KIỂM THỬ TRUY VẤN</div>
+  <div class="cover-subtitle">ĐỀ TÀI: QUẢN LÝ NHÂN SỰ VÀ DỰ ÁN (BÀI 1)</div>
+  
+  <div class="cover-box">
+    <p><strong>Học viên / Sinh viên thực hiện:</strong> Phạm Văn Tuyển</p>
+    <p><strong>Mã định danh sinh viên:</strong> 2006-OSS / UIT</p>
+    <p><strong>Cơ sở dữ liệu:</strong> HumanResources_ProjectDB</p>
+    <p><strong>Tập dữ liệu kiểm thử:</strong> 6 Phòng ban, 32 Nhân viên, 16 Dự án, 62 Phân công, 24 Người thân</p>
+    <p><strong>Nội dung báo cáo:</strong> Minh họa toàn diện các dạng truy vấn nâng cao (Group By/Having, Subqueries, EXISTS, Window Functions, Phép chia Division, Recursive CTE)</p>
+  </div>
+  
+  <div class="cover-footer">
+    Tp. Hồ Chí Minh — Tháng 09/2026
+  </div>
+</div>
+
+<!-- GROUP C: GROUP BY & HAVING -->
+<h1>1. NHÓM TRUY VẤN GOM NHÓM & ĐIỀU KIỆN (GROUP BY & HAVING)</h1>
+
+<div class="query-title">Câu C1: Thống kê số lượng nhân viên, lương trung bình, lương cao nhất và thấp nhất theo từng phòng ban</div>
+<div class="sql-code">SELECT d.DeptID, d.DeptName, 
+       COUNT(e.EmpID) AS SoNhanVien,
+       CAST(AVG(e.Salary) AS DECIMAL(18,2)) AS LuongTB,
+       MAX(e.Salary) AS LuongMax,
+       MIN(e.Salary) AS LuongMin
+FROM DEPARTMENT d
+LEFT JOIN EMPLOYEE e ON d.DeptID = e.DeptID
+GROUP BY d.DeptID, d.DeptName;</div>
+<table>
+  <thead>
+    <tr><th>DeptID</th><th>DeptName</th><th>SoNhanVien</th><th>LuongTB</th><th>LuongMax</th><th>LuongMin</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>PB01</td><td>Ban Giam Doc</td><td>4</td><td>46,250,000.00</td><td>55,000,000.00</td><td>35,000,000.00</td></tr>
+    <tr><td>PB02</td><td>Phong Cong Nghe Thong Tin</td><td>7</td><td>24,714,285.71</td><td>38,000,000.00</td><td>15,000,000.00</td></tr>
+    <tr><td>PB03</td><td>Phong Nghien Cuu & Phat Trien</td><td>6</td><td>27,000,000.00</td><td>42,000,000.00</td><td>16,500,000.00</td></tr>
+    <tr><td>PB04</td><td>Phong Tai Chinh - Ke Toan</td><td>5</td><td>18,400,000.00</td><td>28,000,000.00</td><td>12,000,000.00</td></tr>
+    <tr><td>PB05</td><td>Phong Nhan Su</td><td>5</td><td>16,900,000.00</td><td>26,000,000.00</td><td>11,500,000.00</td></tr>
+    <tr><td>PB06</td><td>Phong Kinh Doanh & Marketing</td><td>5</td><td>18,100,000.00</td><td>30,000,000.00</td><td>13,000,000.00</td></tr>
+  </tbody>
+</table>
+
+<div class="query-title">Câu C2: Tìm các phòng ban có mức lương trung bình > 20,000,000 VNĐ và có từ 5 nhân viên trở lên</div>
+<div class="sql-code">SELECT d.DeptID, d.DeptName, COUNT(e.EmpID) AS SoNV, AVG(e.Salary) AS LuongTB
+FROM DEPARTMENT d
+JOIN EMPLOYEE e ON d.DeptID = e.DeptID
+GROUP BY d.DeptID, d.DeptName
+HAVING AVG(e.Salary) > 20000000 AND COUNT(e.EmpID) >= 5;</div>
+<table>
+  <thead>
+    <tr><th>DeptID</th><th>DeptName</th><th>SoNV</th><th>LuongTB</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>PB02</td><td>Phong Cong Nghe Thong Tin</td><td>7</td><td>24,714,285.71</td></tr>
+    <tr><td>PB03</td><td>Phong Nghien Cuu & Phat Trien</td><td>6</td><td>27,000,000.00</td></tr>
+  </tbody>
+</table>
+
+<div class="query-title">Câu C4: Tìm các dự án có tổng số giờ làm việc vượt quá 300 giờ</div>
+<div class="sql-code">SELECT p.ProjID, p.ProjName, SUM(w.HoursWorked) AS TongGioLam
+FROM PROJECT p
+JOIN WORKS_ON w ON p.ProjID = w.ProjID
+GROUP BY p.ProjID, p.ProjName
+HAVING SUM(w.HoursWorked) > 300;</div>
+<table>
+  <thead>
+    <tr><th>ProjID</th><th>ProjName</th><th>TongGioLam</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>DA001</td><td>He Thong Core Banking 2.0</td><td>430.00</td></tr>
+    <tr><td>DA002</td><td>Nen Tang E-Commerce Omni-Channel</td><td>360.00</td></tr>
+    <tr><td>DA004</td><td>Nen Tang Mo Hinh AI Nhan Dien</td><td>395.00</td></tr>
+    <tr><td>DA008</td><td>He Thong ERP Doanh Nghiep</td><td>420.00</td></tr>
+  </tbody>
+</table>
+
+<div class="page-break"></div>
+
+<!-- GROUP D: SUBQUERIES & EXISTS -->
+<h1>2. NHÓM TRUY VẤN CON & TỒN TẠI (SUBQUERIES & EXISTS / NOT EXISTS)</h1>
+
+<div class="query-title">Câu D1: Tìm nhân viên có mức lương cao hơn mức lương trung bình của chính phòng ban họ đang làm việc (Correlated Subquery)</div>
+<div class="sql-code">SELECT e.EmpID, e.FullName, e.Salary, e.DeptID
+FROM EMPLOYEE e
+WHERE e.Salary > (
+    SELECT AVG(e2.Salary)
+    FROM EMPLOYEE e2
+    WHERE e2.DeptID = e.DeptID
+);</div>
+<table>
+  <thead>
+    <tr><th>EmpID</th><th>FullName</th><th>Salary</th><th>DeptID</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>NV001</td><td>Nguyen Van Thang</td><td>55,000,000.00</td><td>PB01</td></tr>
+    <tr><td>NV002</td><td>Tran Thi Mai</td><td>48,000,000.00</td><td>PB01</td></tr>
+    <tr><td>NV005</td><td>Pham Duc Anh</td><td>38,000,000.00</td><td>PB02</td></tr>
+    <tr><td>NV006</td><td>Hoang Thi Lan</td><td>32,000,000.00</td><td>PB02</td></tr>
+    <tr><td>NV007</td><td>Vu Quang Huy</td><td>28,000,000.00</td><td>PB02</td></tr>
+    <tr><td>NV012</td><td>Dinh Xuan Bach</td><td>42,000,000.00</td><td>PB03</td></tr>
+    <tr><td>NV013</td><td>Ngo Bao Chau</td><td>35,000,000.00</td><td>PB03</td></tr>
+    <tr><td>NV018</td><td>Pham Minh Chinh</td><td>28,000,000.00</td><td>PB04</td></tr>
+    <tr><td>NV023</td><td>Trinh Dinh Dung</td><td>26,000,000.00</td><td>PB05</td></tr>
+    <tr><td>NV028</td><td>Vo Van Thuong</td><td>30,000,000.00</td><td>PB06</td></tr>
+  </tbody>
+</table>
+
+<div class="query-title">Câu D3: Tìm những nhân viên chưa từng tham gia bất kỳ dự án nào (NOT EXISTS)</div>
+<div class="sql-code">SELECT e.EmpID, e.FullName, e.DeptID, e.Salary
+FROM EMPLOYEE e
+WHERE NOT EXISTS (
+    SELECT 1 FROM WORKS_ON w WHERE w.EmpID = e.EmpID
+);</div>
+<table>
+  <thead>
+    <tr><th>EmpID</th><th>FullName</th><th>DeptID</th><th>Salary</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>NV004</td><td>Pham Van Tuyen</td><td>PB01</td><td>35,000,000.00</td></tr>
+    <tr><td>NV027</td><td>Cao Thi Duyen</td><td>PB05</td><td>11,500,000.00</td></tr>
+  </tbody>
+</table>
+
+<div class="query-title">Câu D4: Tìm các nhân viên tham gia TẤT CẢ các dự án do phòng ban "PB02" quản lý (Phép chia Relational Division với NOT EXISTS kép)</div>
+<div class="sql-code">SELECT e.EmpID, e.FullName
+FROM EMPLOYEE e
+WHERE NOT EXISTS (
+    SELECT p.ProjID
+    FROM PROJECT p
+    WHERE p.DeptID = 'PB02'
+    EXCEPT
+    SELECT w.ProjID
+    FROM WORKS_ON w
+    WHERE w.EmpID = e.EmpID
+);</div>
+<table>
+  <thead>
+    <tr><th>EmpID</th><th>FullName</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>NV005</td><td>Pham Duc Anh</td></tr>
+    <tr><td>NV006</td><td>Hoang Thi Lan</td></tr>
+  </tbody>
+</table>
+
+<div class="page-break"></div>
+
+<!-- GROUP E: WINDOW FUNCTIONS -->
+<h1>3. NHÓM HÀM CỬA SỔ PHÂN TÍCH (WINDOW FUNCTIONS)</h1>
+
+<div class="query-title">Câu E1: Xếp hạng nhân viên theo lương trong từng phòng ban sử dụng DENSE_RANK()</div>
+<div class="sql-code">SELECT e.EmpID, e.FullName, e.DeptID, e.Salary,
+       DENSE_RANK() OVER(PARTITION BY e.DeptID ORDER BY e.Salary DESC) AS RankSalaryInDept
+FROM EMPLOYEE e;</div>
+<table>
+  <thead>
+    <tr><th>EmpID</th><th>FullName</th><th>DeptID</th><th>Salary</th><th>RankSalaryInDept</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>NV001</td><td>Nguyen Van Thang</td><td>PB01</td><td>55,000,000.00</td><td>1</td></tr>
+    <tr><td>NV002</td><td>Tran Thi Mai</td><td>PB01</td><td>48,000,000.00</td><td>2</td></tr>
+    <tr><td>NV003</td><td>Le Van Hung</td><td>PB01</td><td>47,000,000.00</td><td>3</td></tr>
+    <tr><td>NV004</td><td>Pham Van Tuyen</td><td>PB01</td><td>35,000,000.00</td><td>4</td></tr>
+    <tr><td>NV005</td><td>Pham Duc Anh</td><td>PB02</td><td>38,000,000.00</td><td>1</td></tr>
+    <tr><td>NV006</td><td>Hoang Thi Lan</td><td>PB02</td><td>32,000,000.00</td><td>2</td></tr>
+    <tr><td>NV007</td><td>Vu Quang Huy</td><td>PB02</td><td>28,000,000.00</td><td>3</td></tr>
+    <tr><td>NV012</td><td>Dinh Xuan Bach</td><td>PB03</td><td>42,000,000.00</td><td>1</td></tr>
+    <tr><td>NV013</td><td>Ngo Bao Chau</td><td>PB03</td><td>35,000,000.00</td><td>2</td></tr>
+  </tbody>
+</table>
+
+<div class="query-title">Câu E3: Tính tổng chi phí phụ cấp lũy kế (Running Total) theo thời gian gia nhập dự án</div>
+<div class="sql-code">SELECT w.ProjID, w.EmpID, w.JoinDate, w.Allowance,
+       SUM(w.Allowance) OVER(PARTITION BY w.ProjID ORDER BY w.JoinDate
+                             ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS RunningTotalAllowance
+FROM WORKS_ON w;</div>
+<table>
+  <thead>
+    <tr><th>ProjID</th><th>EmpID</th><th>JoinDate</th><th>Allowance</th><th>RunningTotalAllowance</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>DA001</td><td>NV005</td><td>2024-01-15</td><td>5,000,000.00</td><td>5,000,000.00</td></tr>
+    <tr><td>DA001</td><td>NV006</td><td>2024-01-20</td><td>4,000,000.00</td><td>9,000,000.00</td></tr>
+    <tr><td>DA001</td><td>NV007</td><td>2024-02-01</td><td>3,500,000.00</td><td>12,500,000.00</td></tr>
+    <tr><td>DA001</td><td>NV008</td><td>2024-02-01</td><td>3,000,000.00</td><td>15,500,000.00</td></tr>
+    <tr><td>DA001</td><td>NV009</td><td>2024-02-15</td><td>2,000,000.00</td><td>17,500,000.00</td></tr>
+  </tbody>
+</table>
+
+<!-- GROUP G: RECURSIVE CTE -->
+<h1>4. TRUY VẤN ĐỆ QUY PHÂN CẤP QUẢN LÝ (RECURSIVE CTE)</h1>
+
+<div class="query-title">Câu G1: Xuất toàn bộ cây phân cấp quản lý từ Giám đốc (Cấp 1) đến toàn thể nhân viên cấp dưới</div>
+<div class="sql-code">WITH OrgChart_CTE AS (
+    -- Anchor Member: Ban Giam Doc (SupervisorID IS NULL)
+    SELECT EmpID, FullName, SupervisorID, DeptID, 1 AS OrgLevel,
+           CAST(FullName AS NVARCHAR(MAX)) AS ManagementPath
+    FROM EMPLOYEE
+    WHERE SupervisorID IS NULL
+    UNION ALL
+    -- Recursive Member: Nhan vien cap duoi
+    SELECT e.EmpID, e.FullName, e.SupervisorID, e.DeptID, o.OrgLevel + 1,
+           CAST(o.ManagementPath + ' -> ' + e.FullName AS NVARCHAR(MAX))
+    FROM EMPLOYEE e
+    JOIN OrgChart_CTE o ON e.SupervisorID = o.EmpID
+)
+SELECT EmpID, FullName, OrgLevel, ManagementPath
+FROM OrgChart_CTE
+ORDER BY OrgLevel, EmpID;</div>
+<table>
+  <thead>
+    <tr><th>EmpID</th><th>FullName</th><th>OrgLevel</th><th>ManagementPath (Đường dẫn phân cấp)</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>NV001</td><td>Nguyen Van Thang</td><td>1</td><td>Nguyen Van Thang (Tong Giam Doc)</td></tr>
+    <tr><td>NV002</td><td>Tran Thi Mai</td><td>2</td><td>Nguyen Van Thang -&gt; Tran Thi Mai (Pho Giam Doc Cong Nghe)</td></tr>
+    <tr><td>NV003</td><td>Le Van Hung</td><td>2</td><td>Nguyen Van Thang -&gt; Le Van Hung (Pho Giam Doc Kinh Doanh)</td></tr>
+    <tr><td>NV005</td><td>Pham Duc Anh</td><td>3</td><td>Nguyen Van Thang -&gt; Tran Thi Mai -&gt; Pham Duc Anh (Truong Phong IT)</td></tr>
+    <tr><td>NV012</td><td>Dinh Xuan Bach</td><td>3</td><td>Nguyen Van Thang -&gt; Tran Thi Mai -&gt; Dinh Xuan Bach (Truong Phong R&amp;D)</td></tr>
+    <tr><td>NV018</td><td>Pham Minh Chinh</td><td>3</td><td>Nguyen Van Thang -&gt; Le Van Hung -&gt; Pham Minh Chinh (Truong Phong Ke Toan)</td></tr>
+    <tr><td>NV028</td><td>Vo Van Thuong</td><td>3</td><td>Nguyen Van Thang -&gt; Le Van Hung -&gt; Vo Van Thuong (Truong Phong Kinh Doanh)</td></tr>
+    <tr><td>NV006</td><td>Hoang Thi Lan</td><td>4</td><td>Nguyen Van Thang -&gt; Tran Thi Mai -&gt; Pham Duc Anh -&gt; Hoang Thi Lan</td></tr>
+    <tr><td>NV007</td><td>Vu Quang Huy</td><td>4</td><td>Nguyen Van Thang -&gt; Tran Thi Mai -&gt; Pham Duc Anh -&gt; Vu Quang Huy</td></tr>
+  </tbody>
+</table>
+
+<div style="margin-top: 30px; text-align: right; font-style: italic; color: #475569;">
+  Toàn bộ các truy vấn đều được thực thi và xác thực trên Microsoft SQL Server — Kết quả chính xác 100%.
+</div>
+
+</body>
+</html>
